@@ -1,10 +1,16 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
 
 const Index = () => {
-  const [activeSection, setActiveSection] = useState<'home' | 'catalog'>('home');
+  const [activeSection, setActiveSection] = useState<'home' | 'catalog' | 'contact'>('home');
+  const [formData, setFormData] = useState({ name: '', phone: '', message: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
   const teas = [
     {
@@ -51,6 +57,14 @@ const Index = () => {
               }`}
             >
               Каталог
+            </button>
+            <button
+              onClick={() => setActiveSection('contact')}
+              className={`text-lg transition-colors ${
+                activeSection === 'contact' ? 'text-primary font-semibold' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Контакты
             </button>
           </div>
         </div>
@@ -117,6 +131,127 @@ const Index = () => {
                 </CardContent>
               </Card>
             </div>
+          </div>
+        </section>
+      )}
+
+      {activeSection === 'contact' && (
+        <section className="pt-24 pb-20 animate-fade-in">
+          <div className="container mx-auto px-4 max-w-4xl">
+            <div className="text-center mb-12">
+              <h2 className="text-5xl font-bold mb-4">Свяжитесь с нами</h2>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                Оставьте заявку, и мы поможем подобрать идеальный чай для вас
+              </p>
+            </div>
+
+            <Card className="border-2 shadow-xl">
+              <CardContent className="p-8">
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    setIsSubmitting(true);
+                    
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    toast({
+                      title: 'Спасибо за обращение!',
+                      description: 'Мы свяжемся с вами в ближайшее время.',
+                    });
+                    
+                    setFormData({ name: '', phone: '', message: '' });
+                    setIsSubmitting(false);
+                  }}
+                  className="space-y-6"
+                >
+                  <div className="space-y-2">
+                    <label htmlFor="name" className="text-sm font-semibold text-foreground">
+                      Ваше имя *
+                    </label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="Как к вам обращаться?"
+                      required
+                      className="h-12 text-base"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label htmlFor="phone" className="text-sm font-semibold text-foreground">
+                      Телефон *
+                    </label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      placeholder="+7 (___) ___-__-__"
+                      required
+                      className="h-12 text-base"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label htmlFor="message" className="text-sm font-semibold text-foreground">
+                      Сообщение
+                    </label>
+                    <Textarea
+                      id="message"
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      placeholder="Расскажите, какой чай вас интересует или задайте вопрос..."
+                      rows={5}
+                      className="text-base resize-none"
+                    />
+                  </div>
+
+                  <Button
+                    type="submit"
+                    size="lg"
+                    disabled={isSubmitting}
+                    className="w-full text-lg py-6 transition-all hover:scale-105"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Icon name="Loader2" className="mr-2 animate-spin" size={20} />
+                        Отправка...
+                      </>
+                    ) : (
+                      <>
+                        Отправить заявку
+                        <Icon name="Send" className="ml-2" size={20} />
+                      </>
+                    )}
+                  </Button>
+                </form>
+
+                <div className="mt-8 pt-8 border-t border-border">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Icon name="MapPin" size={20} className="text-primary" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold mb-1">Адрес</h4>
+                        <p className="text-muted-foreground text-sm">г. Москва, ул. Чайная, д. 108</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 bg-secondary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Icon name="Clock" size={20} className="text-secondary" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold mb-1">Часы работы</h4>
+                        <p className="text-muted-foreground text-sm">Пн-Вс: 10:00 - 20:00</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </section>
       )}
